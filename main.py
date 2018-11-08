@@ -34,8 +34,44 @@ class ImportCSVFrame:
 
     def process(self, **kwargs):
         data = pd.read_csv(self.filename.get(), header=(0 if self.headerInFile.get() else None), prefix="col-")
-        pl.plot([go.Scatter(x=data[data.columns[0]], y=data[data.columns[1]], mode="markers", marker=dict(size=4))])
+        
+        # transition to next frame
+        ChooseColumnsFrame(self.parent, data=data)
+        self.frame.destroy()
         return
+
+class ChooseColumnsFrame:
+    def __init__(self, parent, **kwargs):
+        self.parent = parent
+        self.data = kwargs["data"]
+
+        self.frame = ttk.Frame(root, padding="5")
+        self.frame.grid(column=0, row=0, sticky=(N,S,E,W))
+        
+        ## GUI Components
+        ttk.Button(self.frame, text="Next", command=self.process).grid(column=1, row=1)
+
+    def process(self, **kwargs):
+        MakeGraphFrame(self.parent, data=self.data)
+        self.frame.destroy()
+        return
+
+""" This class is only temporary to illustrate how to transition to a new window """
+class MakeGraphFrame:
+    def __init__(self, parent, **kwargs):
+        self.parent = parent
+        self.data = kwargs["data"]
+
+        self.frame = ttk.Frame(root, padding="5")
+        self.frame.grid(column=0, row=0, sticky=(N,S,E,W))
+        
+        ## GUI Components
+        ttk.Button(self.frame, text="make graph", command=self.process).grid(column=1, row=1)
+
+    def process(self, **kwargs):
+        pl.plot([go.Scatter(x=self.data[self.data.columns[0]], y=self.data[self.data.columns[1]], mode="markers", marker=dict(size=4))])
+        return
+
 
 if __name__ == "__main__":
     root = Tk()
@@ -45,4 +81,3 @@ if __name__ == "__main__":
 
     ImportCSVFrame(root)
     root.mainloop()
-    
