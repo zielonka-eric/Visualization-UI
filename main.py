@@ -70,9 +70,12 @@ class NameColumnsFrame:
             var.set(column)
             self.newColumnNames.append(var)
 
+            #text box
             ttk.Entry(frame, textvariable=var).grid(column=i, row=0, padx=10, pady=4)
 
-
+            #example data
+            for j in range(0, 8):
+                ttk.Label(frame, text=self.data.loc[j, column]).grid(column=i, row=j+1, padx=10, pady=2)
         return
 
     def process(self, **kwargs):
