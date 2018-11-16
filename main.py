@@ -84,37 +84,24 @@ class NameColumnsFrame:
         self.data.rename(columns=dict(zip(self.originalColumnNames, newColumnNamesList)), inplace=True)
 
         # transition to next frame
-        ChooseColumnsFrame(self.parent, data=self.data)
+        ChooseColumnsAndGraphFrame(self.parent, data=self.data)
         self.frame.destroy()
         return
 
-class ChooseColumnsFrame:
+class ChooseColumnsAndGraphFrame:
     def __init__(self, parent, **kwargs):
         self.parent = parent
         self.data = kwargs["data"]
 
-        self.frame = ttk.Frame(self.parent, padding="5")
-        self.frame.grid(column=0, row=0, sticky=(N,S,E,W))
+        self.columnsFrame = ttk.Frame(self.parent, padding="5")
+        self.graphsFrame = ttk.Frame(self.parent, padding="5")
+        self.axesFrame = ttk.Frame(self.parent, padding="5")
+        self.columnsFrame.grid(column=0, row=0, sticky=(N,S,E,W))
+        self.graphsFrame.grid(column=1, row=0, sticky=(N,S,E,W))
+        self.axesFrame.grid(column=2, row=0, sticky=(N,S,E,W))
         
         ## GUI Components
-        ttk.Button(self.frame, text="Next", command=self.process).grid(column=1, row=1)
-
-    def process(self, **kwargs):
-        MakeGraphFrame(self.parent, data=self.data)
-        self.frame.destroy()
-        return
-
-""" This class is only temporary to illustrate how to transition to a new window """
-class MakeGraphFrame:
-    def __init__(self, parent, **kwargs):
-        self.parent = parent
-        self.data = kwargs["data"]
-
-        self.frame = ttk.Frame(self.parent, padding="5")
-        self.frame.grid(column=0, row=0, sticky=(N,S,E,W))
-        
-        ## GUI Components
-        ttk.Button(self.frame, text="make graph", command=self.process).grid(column=1, row=1)
+        ttk.Button(self.axesFrame, text="Next", command=self.process).grid(column=1, row=1)
 
     def process(self, **kwargs):
         pl.plot([go.Scatter(x=self.data[self.data.columns[0]], y=self.data[self.data.columns[1]], mode="markers", marker=dict(size=4))])
