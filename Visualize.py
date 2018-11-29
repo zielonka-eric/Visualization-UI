@@ -2,7 +2,7 @@ import plotly.offline as pl
 import plotly.graph_objs as go
 import numpy as np
 from tkinter import ttk
-from tkinter import*
+from tkinter import *
 
 class ChooseColumnsAndGraphFrame:
     def __init__(self, parent, **kwargs):
@@ -13,9 +13,7 @@ class ChooseColumnsAndGraphFrame:
         self.choices = [("Scatter"),("Bar"),("Line"),("Scatter3D"),("Histogram"),("Best Choice")]
         self.my_var = IntVar()
         self.selectedLabels = []
-        self.labels={}
-        r =1;
-        j = 1;
+        self.labels = {}
         
         ## GUI Components
         ## Columns 
@@ -26,26 +24,24 @@ class ChooseColumnsAndGraphFrame:
         self.columnsFrame.grid(column=0, row=0, sticky=(N,S,E,W))
         self.graphsFrame.grid(column=1, row=0, sticky=(N,S,E,W))
         self.axesFrame.grid(column=2, row=0, sticky=(N,S,E,W))
-        self.buttonFrame.grid(column=2,row =5,sticky =(N,S,E,W))
+        self.buttonFrame.grid(column=2, row=1, sticky=E)
         
         ## Headers
-        for i in self.data.keys(): 
+        for j, name in enumerate(self.data.keys()): 
             var = IntVar()
-            self.b = ttk.Checkbutton(self.columnsFrame, text=i,variable = var)
-            self.b.grid(column =0, row = j,sticky =(N,S,E,W))
-            self.b.bind("<Enter>", self.on_enter)
-            self.b.bind("<Leave>", self.on_leave)
-            j += 1
-            self.labels[i] = var
+            b = ttk.Checkbutton(self.columnsFrame, text=name, variable = var)
+            b.grid(column=0, row=j, sticky=(N,S,E,W))
+            b.bind("<Enter>", self.on_enter)
+            b.bind("<Leave>", self.on_leave)
+            self.labels[name] = var
         
         ## Graph   
         for val, choice in enumerate(self.choices):
-            Radiobutton(self.graphsFrame, text=choice,indicatoron = 0,padx = 2,variable=self.my_var, value=val,command=self.selected).grid(row=r, column =2,sticky =(N,S,E,W))
-            r+=1
-            print(val)
+            Radiobutton(self.graphsFrame, text=choice,indicatoron = 0,padx = 2,variable=self.my_var, value=val,command=self.selected).grid(row=val, column =2,sticky =(N,S,E,W))
+
         ## Buttons    
-        ttk.Button(self.buttonFrame, text='Graph',command =self.process).grid(row=j+r, sticky=W, pady=4)
-        ttk.Button(self.buttonFrame, text='Quit', command= self.parent.destroy).grid(row=j+r, column =1, sticky=W, pady=4)
+        ttk.Button(self.buttonFrame, text='Graph',command =self.process).grid(row=0, column=0, sticky=E, pady=4)
+        ttk.Button(self.buttonFrame, text='Quit', command= self.parent.destroy).grid(row=0, column=1, sticky=E, pady=4)
     
     ### functions
     
