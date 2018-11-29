@@ -1,8 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 import pandas as pd
-import plotly.offline as pl
-import plotly.graph_objs as go
+import Visualize as vis
 
 class ImportCSVFrame:
     def __init__(self, parent, **kwargs):
@@ -71,7 +70,7 @@ class NameColumnsFrame:
             self.newColumnNames.append(var)
 
             #text box
-            ttk.Entry(frame, textvariable=var).grid(column=i, row=0, padx=10, pady=4)
+            Entry(frame, textvariable=var).grid(column=i, row=0, padx=10, pady=4)
 
             #example data
             for j in range(0, 8):
@@ -84,28 +83,10 @@ class NameColumnsFrame:
         self.data.rename(columns=dict(zip(self.originalColumnNames, newColumnNamesList)), inplace=True)
 
         # transition to next frame
-        ChooseColumnsAndGraphFrame(self.parent, data=self.data)
+        vis.ChooseColumnsAndGraphFrame(self.parent, data=self.data)
         self.frame.destroy()
         return
 
-class ChooseColumnsAndGraphFrame:
-    def __init__(self, parent, **kwargs):
-        self.parent = parent
-        self.data = kwargs["data"]
-
-        self.columnsFrame = ttk.Frame(self.parent, padding="5")
-        self.graphsFrame = ttk.Frame(self.parent, padding="5")
-        self.axesFrame = ttk.Frame(self.parent, padding="5")
-        self.columnsFrame.grid(column=0, row=0, sticky=(N,S,E,W))
-        self.graphsFrame.grid(column=1, row=0, sticky=(N,S,E,W))
-        self.axesFrame.grid(column=2, row=0, sticky=(N,S,E,W))
-        
-        ## GUI Components
-        ttk.Button(self.axesFrame, text="Next", command=self.process).grid(column=1, row=1)
-
-    def process(self, **kwargs):
-        pl.plot([go.Scatter(x=self.data[self.data.columns[0]], y=self.data[self.data.columns[1]], mode="markers", marker=dict(size=4))])
-        return
 
 
 if __name__ == "__main__":
