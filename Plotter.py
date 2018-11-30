@@ -4,8 +4,8 @@ import numpy as np
 
 from Graph import Graph
 
-def getGraphs():
-    pass
+def getGraphs(data, labels):
+    return [i.value for i in list(Graph)]   #temporary
 
 def getOptions(graphChoice):
     options = []

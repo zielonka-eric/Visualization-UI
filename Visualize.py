@@ -56,25 +56,16 @@ class ChooseColumnsAndGraphFrame:
     
     # Active when Graph buttton is pressed
     def process(self, **kwargs):
-        Plotter.graph(Graph(self.graphChoice.get()), self.data, self.selectedLabels)
+        Plotter.graph(Graph(self.graphChoice.get()), self.data, self.selectedAxes)
 
     ## selected Radiobutton for graph
     def graphSelected(self):
-        if Graph(self.graphChoice.get()) == Graph.SCATTER:
-            self.scatterOption()
-        elif Graph(self.graphChoice.get()) == Graph.BAR:
-            self.barOption()
-        elif Graph(self.graphChoice.get()) == Graph.LINE:
-            self.lineOption()
-        elif Graph(self.graphChoice.get()) == Graph.SCATTER3D:
-            self.scatter3DOption()
-        elif Graph(self.graphChoice.get()) == Graph.HISTOGRAM:
-            self.histogramOption()
+        self.updateOptions()
 
     ## called when features are selected to be graphed
     def featureSelected(self):
         #add or remove to/from selectedLabels
-        self.selectedLabels = []
+        self.selectedLabels = [""]              # start with default blank value if user wants to remove a choice they previously selected 
         values = [(i, var.get()) for i, var in self.labels.items()]
         for i,var in values:
             if(var ==1):
@@ -83,24 +74,24 @@ class ChooseColumnsAndGraphFrame:
 
     def listGraphTypes(self):
         #get suggested graphs
-        self.choices = [i.value for i in list(Graph)]           # will change
+        self.choices = Plotter.getGraphs(self.data, self.selectedLabels)
         self.graphChoice.set(self.choices[0])
 
         for val, choice in enumerate(self.choices):
             b = ttk.Radiobutton(self.graphsFrame, text=choice, variable=self.graphChoice, value=choice, command=self.graphSelected)
             b.grid(row=val, column=0, padx = 2, sticky =(N,S,E,W))
-        self.graphSelected() # to populate values in axes frame
+        self.updateOptions()                    # to populate values in axes frame
 
         
     # AxesFrame based on the RadioButton     
-    def scatterOption(self,**kwargs):
-        ttk.Label(self.axesFrame,text="x").grid(row=0,column=0)
-        ttk.Label(self.axesFrame,text="y").grid(row=1,column=0)
-        ttk.Label(self.axesFrame,text="color").grid(row=2,column=0)
-        ttk.Label(self.axesFrame,text="size").grid(row=3,column=0)
+    def updateOptions(self, **kwargs):
+        #remove all options currently in frame
+        for widget in self.axesFrame.winfo_children():
+            widget.destroy()
 
-        self.selectedAxes = {"x": StringVar(), "y": StringVar(), "color": StringVar(), "size": StringVar()}
-        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["x"], values=self.selectedLabels, state="readonly").grid(row=0, column=1)
-        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["y"], values=self.selectedLabels, state="readonly").grid(row=1, column=1)
-        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["color"], values=self.selectedLabels, state="readonly").grid(row=2, column=1)
-        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["size"], values=self.selectedLabels, state="readonly").grid(row=3, column=1)
+        options = Plotter.getOptions(Graph(self.graphChoice.get()))
+        self.selectedAxes = {label: StringVar() for label in options}
+
+        for i, label in enumerate(options):
+            ttk.Label(self.axesFrame,text=label).grid(row=i,column=0)
+            ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes[label], values=self.selectedLabels, state="readonly").grid(row=i, column=1)
