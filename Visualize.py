@@ -1,6 +1,6 @@
 from tkinter import ttk
 from tkinter import *
-
+import ToolTip as tt
 from Graph import Graph
 import Plotter
 
@@ -32,13 +32,19 @@ class ChooseColumnsAndGraphFrame:
             var = IntVar()
             b = ttk.Checkbutton(self.columnsFrame, text=name, variable = var, command=self.featureSelected)
             b.grid(column=0, row=j, sticky=(N,S,E,W))
-            b.bind("<Enter>", self.on_enter)
-            b.bind("<Leave>", self.on_leave)
+            if self.data[name].ftypes == "object:dense":
+                self.typeName = "String"
+            elif self.data[name].ftypes == "int64:dense":
+                self.typeName = "Int"
+            elif self.data[name].ftypes == "float64:dense":
+                self.typeName = "Float"
+            self.info = "Type: " + self.typeName +"\n Length:" +  str(len(self.data[name]))
+            tt.ToolTip(b,self.info)
             self.labels[name] = var
         
         ## Graph
         self.listGraphTypes()
-        
+
         ## set up the axes choices
         self.graphSelected()
         
@@ -50,7 +56,7 @@ class ChooseColumnsAndGraphFrame:
     
     # Active when Graph buttton is pressed
     def process(self, **kwargs):
-        Plotter.graph(Graph(self.graphChoice.get()), self.data, self.selectedAxes)
+        Plotter.graph(Graph(self.graphChoice.get()), self.data, self.selectedLabels)
 
     ## selected Radiobutton for graph
     def graphSelected(self):
@@ -85,12 +91,6 @@ class ChooseColumnsAndGraphFrame:
             b.grid(row=val, column=0, padx = 2, sticky =(N,S,E,W))
         self.graphSelected() # to populate values in axes frame
 
-
-    # Active when mouse is hover over Headers
-    def on_enter(self,event):
-        print(self.data.info())
-    def on_leave(self,enter):
-        print("Left")
         
     # AxesFrame based on the RadioButton     
     def scatterOption(self,**kwargs):
