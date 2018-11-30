@@ -3,6 +3,7 @@ import plotly.graph_objs as go
 import numpy as np
 
 from Graph import Graph
+ 
 
 def graph(graphChoice, data, labels):
     if graphChoice == Graph.SCATTER:
@@ -15,7 +16,14 @@ def graph(graphChoice, data, labels):
         scatter3DGraph(data, labels)
     elif graphChoice == Graph.HISTOGRAM:
         histogramGraph(data, labels)
-
+    elif graphChoice == Graph.HISTOGRAM2D:
+        histogram2dGraph(data, labels)
+    elif graphChoice == Graph.BOXPLOT:
+        boxPlotGraph(data, labels)
+    elif graphChoice == Graph.PIE:
+        pieGraph(data,labels)
+    elif graphChoice == Graph.SCATTERMAP:
+        scatterMapGraph(data,labels)
 def scatterGraph(data, labels):
     # set to color data if defined, otherwise adjusted size
     if labels["size"].get() == "":
@@ -50,7 +58,7 @@ def scatterGraph(data, labels):
     return
 
 def barGraph(data, labels):
-    pl.plot([go.Bar(x=data[labels[0]], y=data[labels[1]])])
+    pl.plot([go.Bar(x=data[labels['x']], y=data[labels['y']])])
     return 
 
 def lineGraph(data, labels):
@@ -72,6 +80,26 @@ def scatter3DGraph(data, labels):
 def histogramGraph(data, labels):
     pl.plot([go.Histogram(x=data[labels[0]])])
 
+def histogram2dGraph(data, labels):
+    pl.plot([go.Histogram2d(
+    x=data[labels[0]],
+    y=data[labels[1]],
+    colorscale='YlGnBu',
+    zmax=10,
+    nbinsx=14,
+    nbinsy=14,
+    zauto=False,
+)])
+
+def boxPlotGraph(data,labels):
+    pl.plot([go.Box(x=data[labels[0]])])
+
+def pieGraph(data,labels):
+    pl.plot([go.Pie(label=data[labels[0]],values=data[labels[1]])])
+    
+def scatterMapGraph(data,labels):
+    print ("Coming Soon")
+    
 def bestGraph(data, labels):
     pl.plot([go.Bar(x=data[labels[0]], y=data[labels[1]])])
     return
