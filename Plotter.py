@@ -4,6 +4,31 @@ import numpy as np
 
 from Graph import Graph
 
+def getGraphs():
+    pass
+
+def getOptions(graphChoice):
+    options = []
+    if graphChoice == Graph.SCATTER:
+        options = ["x", "y", "[color]", "[size]"]
+    elif graphChoice == Graph.BAR:
+        options = ["category", "y", "[color]"]
+    elif graphChoice == Graph.LINE:
+        options = ["x", "y"]
+    elif graphChoice == Graph.SCATTER3D:
+        options = ["x", "y", "z", "[color]", "[size]"]
+    elif graphChoice == Graph.HISTOGRAM:
+        options = ["x"]
+    elif graphChoice == Graph.HISTOGRAM2D:
+        options = ["x", "y"]
+    elif graphChoice == Graph.BOXPLOT:
+        options = ["category", "y"]
+    elif graphChoice == Graph.PIE:
+        options = ["category", "[values]"]
+    elif graphChoice == Graph.SCATTERMAP:
+        options = ["latitude", "longitude", "[color]", "[size]"]
+    return options
+
 def graph(graphChoice, data, labels):
     if graphChoice == Graph.SCATTER:
         scatterGraph(data, labels)
@@ -18,23 +43,23 @@ def graph(graphChoice, data, labels):
 
 def scatterGraph(data, labels):
     # set to color data if defined, otherwise adjusted size
-    if labels["size"].get() == "":
+    if labels["[size]"].get() == "":
         #calculate an optimal size for markers
         size = -2 * np.log(len(data.index) /100000)
         if size < 2: size = 2
         if size > 10: size = 10
     else:
-        sizeData = data[labels["size"].get()]
+        sizeData = data[labels["[size]"].get()]
         size = np.interp(sizeData, (sizeData.min(), sizeData.max()), (4, 14))
     
     # set to color data if defined, otherwise default
-    if labels["color"].get() == "":
+    if labels["[color]"].get() == "":
         color = '#1f77b4'
         scale = False
-    elif data[labels["color"].get()].dtype == np.object:
+    elif data[labels["[color]"].get()].dtype == np.object:
         pass
     else:
-        color = data[labels["color"].get()]
+        color = data[labels["[color]"].get()]
         scale = True
     
     pl.plot([go.Scatter(
@@ -50,23 +75,46 @@ def scatterGraph(data, labels):
     return
 
 def barGraph(data, labels):
-    pl.plot([go.Bar(x=data[labels[0]], y=data[labels[1]])])
-    return 
+    pl.plot([go.Bar(x=data[labels["category"].get()], y=data[labels["y"].get()])])
+    return
 
 def lineGraph(data, labels):
-    pl.plot([go.Scatter(x=data[labels[0]], y=data[labels[1]], mode="lines+markers")])
+    pl.plot([go.Scatter(x=data[labels["x"]], y=data[labels["y"]], mode="lines+markers")])
     return
 
 def scatter3DGraph(data, labels):
-    x, y, z = np.random.multivariate_normal(np.array([0,0,0]), np.eye(3), 400).transpose()
-    pl.plot([go.Scatter3d(x=data[labels[0]], y=data[labels[1]],z=data[labels[2]], 
-    mode='markers',
-    marker=dict(
-    size=5,
-    color=x,                # set color to an array/list of desired values
-    colorscale='Viridis',   # choose a colorscale
-    opacity=0.8
-    ))])
+    # set to color data if defined, otherwise adjusted size
+    if labels["[size]"].get() == "":
+        #calculate an optimal size for markers
+        size = -2 * np.log(len(data.index) /100000)
+        if size < 2: size = 2
+        if size > 10: size = 10
+    else:
+        sizeData = data[labels["[size]"].get()]
+        size = np.interp(sizeData, (sizeData.min(), sizeData.max()), (4, 14))
+    
+    # set to color data if defined, otherwise default
+    if labels["[color]"].get() == "":
+        color = '#1f77b4'
+        scale = False
+    elif data[labels["[color]"].get()].dtype == np.object:
+        pass
+    else:
+        color = data[labels["[color]"].get()]
+        scale = True
+    
+    pl.plot([go.Scatter3d(
+        x=data[labels["x"].get()],
+        y=data[labels["y"].get()],
+        z=data[labels["z"].get()],
+        mode='markers',
+        marker=dict(
+            size=size,
+            color=color,
+            showscale=scale,
+            opacity=0.8
+        )
+    )])
     return
 
 def histogramGraph(data, labels):
