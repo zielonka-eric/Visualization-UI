@@ -73,9 +73,13 @@ class ChooseColumnsAndGraphFrame:
         self.listGraphTypes()
 
     def listGraphTypes(self):
+        #remove all options currently in frame
+        for widget in self.graphsFrame.winfo_children():
+            widget.destroy()
+        
         #get suggested graphs
         self.choices = Plotter.getGraphs(self.data, self.selectedLabels)
-        self.graphChoice.set(self.choices[0])
+        self.graphChoice.set(self.choices[0]) if len(self.choices) > 0 else self.graphChoice.set("")
 
         for val, choice in enumerate(self.choices):
             b = ttk.Radiobutton(self.graphsFrame, text=choice, variable=self.graphChoice, value=choice, command=self.graphSelected)
@@ -89,7 +93,7 @@ class ChooseColumnsAndGraphFrame:
         for widget in self.axesFrame.winfo_children():
             widget.destroy()
 
-        options = Plotter.getOptions(Graph(self.graphChoice.get()))
+        options = Plotter.getOptions(Graph(self.graphChoice.get())) if self.graphChoice.get() != "" else []
         self.selectedAxes = {label: StringVar() for label in options}
 
         for i, label in enumerate(options):
