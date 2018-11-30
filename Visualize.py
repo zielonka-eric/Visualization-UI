@@ -1,9 +1,8 @@
-import plotly.offline as pl
-import plotly.graph_objs as go
-import numpy as np
 from tkinter import ttk
 from tkinter import *
+
 from Graph import Graph
+import Plotter
 
 class ChooseColumnsAndGraphFrame:
     def __init__(self, parent, **kwargs):
@@ -11,10 +10,11 @@ class ChooseColumnsAndGraphFrame:
         self.data = kwargs["data"]
 
         ##set variables
-        self.choices = []
-        self.graphChoice = StringVar()
-        self.selectedLabels = []
-        self.labels = {}
+        self.choices = []               #the possible graphs for the features selected
+        self.graphChoice = StringVar()  #the graph chosen by the user
+        self.selectedLabels = []        #the features chosen by the user
+        self.labels = {}                #holds all features in dataset
+        self.selectedAxes = {}          #the chosen features matched up with the chosen axes
         
         ## GUI Components
         ## Columns 
@@ -50,18 +50,7 @@ class ChooseColumnsAndGraphFrame:
     
     # Active when Graph buttton is pressed
     def process(self, **kwargs):
-        if Graph(self.graphChoice.get()) == Graph.SCATTER:
-            self.scatterGraph()
-        elif Graph(self.graphChoice.get()) == Graph.BAR:
-            self.barGraph()
-        elif Graph(self.graphChoice.get()) == Graph.LINE:
-            self.lineGraph() 
-        elif Graph(self.graphChoice.get()) == Graph.SCATTER3D:
-            self.scatter3DGraph()
-        elif Graph(self.graphChoice.get()) == Graph.HISTOGRAM:
-            self.histogramGraph()
-        elif(self.graphChoice.get()==5):
-            self.bestGraph()
+        Plotter.graph(Graph(self.graphChoice.get()), self.data, self.selectedAxes)
 
     ## selected Radiobutton for graph
     def graphSelected(self):
@@ -94,6 +83,7 @@ class ChooseColumnsAndGraphFrame:
         for val, choice in enumerate(self.choices):
             b = ttk.Radiobutton(self.graphsFrame, text=choice, variable=self.graphChoice, value=choice, command=self.graphSelected)
             b.grid(row=val, column=0, padx = 2, sticky =(N,S,E,W))
+        self.graphSelected() # to populate values in axes frame
 
 
     # Active when mouse is hover over Headers
@@ -104,45 +94,13 @@ class ChooseColumnsAndGraphFrame:
         
     # AxesFrame based on the RadioButton     
     def scatterOption(self,**kwargs):
-        self.x_axis = ttk.Label(self.axesFrame,text="x")
-        self.x_axis.grid(row=0,column=0)
-        self.y_axis = ttk.Label(self.axesFrame,text="y")
-        self.y_axis.grid(row=1,column=0)
-        self.dotSize = ttk.Label(self.axesFrame,text="Size")
-        self.dotSize.grid(row=2,column=0)
-        self.color = ttk.Label(self.axesFrame,text="color")
-        self.color.grid(row=3,column=0)
-    
-    
-    # All the Graph functions    
-    def scatterGraph(self, **kwargs): 
-        pl.plot([go.Scatter(x=self.data[self.selectedLabels[0]], y=self.data[self.selectedLabels[1]], 
-                mode="markers", marker=dict(size=4))])
-        return
-    
-    def barGraph(self, **kwargs):
-        pl.plot([go.Bar(x=self.data[self.selectedLabels[0]], y=self.data[self.selectedLabels[1]])])
-        return 
-    
-    def lineGraph(self, **kwargs):
-        pl.plot([go.Scatter(x=self.data[self.selectedLabels[0]], y=self.data[self.selectedLabels[1]], mode="lines+markers")])
-        return
-    
-    def scatter3DGraph(self, **kwargs):
-        x, y, z = np.random.multivariate_normal(np.array([0,0,0]), np.eye(3), 400).transpose()
-        pl.plot([go.Scatter3d(x=self.data[self.selectedLabels[0]], y=self.data[self.selectedLabels[1]],z=self.data[self.selectedLabels[2]], 
-        mode='markers',
-        marker=dict(
-        size=5,
-        color=x,                # set color to an array/list of desired values
-        colorscale='Viridis',   # choose a colorscale
-        opacity=0.8
-        ))])
-        return
-    
-    def histogramGraph(self, **kwargs):
-        pl.plot([go.Histogram(x=self.data[self.selectedLabels[0]])])
-    
-    def bestGraph(self, **kwargs):
-        pl.plot([go.Bar(x=self.data[self.selectedLabels[0]], y=self.data[self.selectedLabels[1]])])
-        return
+        ttk.Label(self.axesFrame,text="x").grid(row=0,column=0)
+        ttk.Label(self.axesFrame,text="y").grid(row=1,column=0)
+        ttk.Label(self.axesFrame,text="color").grid(row=2,column=0)
+        ttk.Label(self.axesFrame,text="size").grid(row=3,column=0)
+
+        self.selectedAxes = {"x": StringVar(), "y": StringVar(), "color": StringVar(), "size": StringVar()}
+        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["x"], values=self.selectedLabels, state="readonly").grid(row=0, column=1)
+        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["y"], values=self.selectedLabels, state="readonly").grid(row=1, column=1)
+        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["color"], values=self.selectedLabels, state="readonly").grid(row=2, column=1)
+        ttk.Combobox(self.axesFrame, textvariable=self.selectedAxes["size"], values=self.selectedLabels, state="readonly").grid(row=3, column=1)

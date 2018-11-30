@@ -10,3 +10,4 @@ class Graph(Enum):
     BOXPLOT = "Boxplot"
     PIE = "Pie"
     SCATTERMAP = "Scatter Plot Map"
+    
