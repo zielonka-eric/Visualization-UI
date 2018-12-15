@@ -20,7 +20,7 @@ def getGraphs(data, labels):
     graphList = []
     if stringNumber == 0:
         if numNumber == 1:
-            graphList = [Graph.HISTOGRAM]
+            graphList = [Graph.HISTOGRAM,Graph.BOXPLOT]
         if numNumber == 2:
             graphList = [Graph.SCATTER, Graph.LINE, Graph.BAR, Graph.HISTOGRAM2D, Graph.SCATTERMAP]
         if numNumber == 3:
@@ -33,7 +33,7 @@ def getGraphs(data, labels):
         if numNumber == 0:
             graphList = [Graph.PIE]
         if numNumber == 1:
-            graphList = [Graph.BAR, Graph.BOXPLOT, Graph.PIE]
+            graphList = [Graph.BAR, Graph.PIE]
         if numNumber == 2:
             graphList = [Graph.BAR, Graph.SCATTER, Graph.SCATTERMAP]
         if numNumber == 3:
@@ -60,7 +60,7 @@ def getOptions(graphChoice):
     elif graphChoice == Graph.HISTOGRAM2D:
         options = ["x", "y"]
     elif graphChoice == Graph.BOXPLOT:
-        options = ["category", "y"]
+        options = ["y"]
     elif graphChoice == Graph.PIE:
         options = ["category", "[values]"]
     elif graphChoice == Graph.SCATTERMAP:
@@ -178,6 +178,7 @@ def histogram2dGraph(data, labels):
 )])
 
 def boxPlotGraph(data,labels):
+    
     pl.plot([go.Box(
         y=data[labels["y"].get()]
     )])
@@ -185,9 +186,64 @@ def boxPlotGraph(data,labels):
 def pieGraph(data,labels):
     #doesn't quite work yet
     pl.plot([go.Pie(
-        label=data[labels[0]],
-        values=data[labels[1]]
+        labels=data[labels["category"].get()],
+        values=data[labels["[values]"].get()]
     )])
     
 def scatterMapGraph(data,labels):
-    print ("Coming Soon")
+    pl.plot([go.Scattergeo(
+        locationmode = 'USA-states',
+        lon=data[labels["longitude"].get()],
+        lat=data[labels["latitude"].get()],
+        #text=data[labels["text"].get()],
+        mode = 'markers',
+        marker = dict(
+            size = 8,
+            opacity = 0.8,
+            reversescale = True,
+            autocolorscale = True,
+            symbol = 'square',
+            line = dict(
+                width=1,
+                color='rgba(102, 102, 102)'
+            ))
+            
+        )])
+    
+    
+    
+    
+#    data = [ dict(
+#        type = 'scattergeo',
+#        locationmode = 'USA-states',
+#        lon=data[labels["longitude"].get()],
+#        lat=data[labels["latitude"].get()],
+#        #text=data[labels["text"].get()],
+#        mode = 'markers',
+#        marker = dict(
+#            size = 8,
+#            opacity = 0.8,
+#            reversescale = True,
+#            autocolorscale = True,
+#            symbol = 'square',
+#            line = dict(
+#                width=1,
+#                color='rgba(102, 102, 102)'
+#            ),
+#            
+#        ))]
+#
+#    layout = dict(
+#        title = 'Airpot',
+#        geo = dict(
+#            scope='usa'
+#        ),
+#    )
+#
+#       
+#    pl.plot([go.Figure(
+#        data = data,
+#        layout= layout)])
+       
+    
+    
