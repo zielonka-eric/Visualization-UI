@@ -156,11 +156,58 @@ def scatterGraph(data, labels):
     return
 
 def barGraph(data, labels):
-    pl.plot([go.Bar(x=data[labels["category"].get()], y=data[labels["y"].get()])])
+    if labels["[color]"].get() == "":
+        traces = [go.Bar(
+            x=data[labels["category"].get()],
+            y=data[labels["y"].get()]
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["y"].get() + " vs. " + labels["category"].get(),
+            yaxis = dict(title=labels["y"].get()),
+            xaxis = dict(title=labels["category"].get())
+        ))
+    elif data[labels["[color]"].get()].dtype == np.object:
+        ## find unique labels in the column set to "color"    
+        fig = dict(
+            data=[ go.Bar(
+                x=data[labels["category"].get()],
+                y=data[labels["y"].get()]
+            ) for colorLabel in data[labels["[color]"].get()].unique() ],
+            layout=dict(
+                title = labels["y"].get() + " vs. " + labels["category"].get(),
+                yaxis = dict(title=labels["y"].get()),
+                xaxis = dict(title=labels["category"].get())
+            )
+        )
+    else:
+        traces = [go.Bar(
+            x=data[labels["category"].get()],
+            y=data[labels["y"].get()],
+            marker=dict(
+                color = data[labels["[color]"].get()],
+                showscale = True,
+                colorbar=dict(
+                    title=labels["[color]"].get()
+                )
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["y"].get() + " vs. " + labels["category"].get(),
+            yaxis = dict(title=labels["y"].get()),
+            xaxis = dict(title=labels["category"].get())
+        ))
+
+    pl.plot(fig)
     return
 
 def lineGraph(data, labels):
-    pl.plot([go.Scatter(x=data[labels["x"].get()], y=data[labels["y"].get()], mode="lines+markers")])
+    traces = [go.Scatter(x=data[labels["x"].get()], y=data[labels["y"].get()], mode="lines+markers")]
+    fig = dict(data=traces, layout=dict(
+        title = labels["y"].get() + " vs. " + labels["x"].get(),
+        yaxis = dict(title=labels["y"].get()),
+        xaxis = dict(title=labels["x"].get())
+    ))
+    pl.plot(fig)
     return
 
 def scatter3DGraph(data, labels):
@@ -221,7 +268,7 @@ def scatter3DGraph(data, labels):
         traces = [go.Scatter3d(
             x=data[labels["x"].get()],
             y=data[labels["y"].get()],
-            z=data[labels["z"].get()], 
+            z=data[labels["z"].get()],
             mode="markers",
             marker=dict(
                 size = size,
@@ -246,14 +293,31 @@ def scatter3DGraph(data, labels):
     return
 
 def histogramGraph(data, labels):
-    pl.plot([go.Histogram(x=data[labels["x"].get()])])
+    traces = [go.Histogram(x=data[labels["x"].get()])]
+    fig = dict(data=traces, layout=dict(
+        title = "Histogram of " + labels["x"].get(),
+        xaxis = dict(title=labels["x"].get()),
+        yaxis = dict(title="Count")
+    ))
+    pl.plot(fig)
+    return
 
 def histogram2dGraph(data, labels):
-    pl.plot([go.Histogram2d(
-    x=data[labels["x"].get()],
-    y=data[labels["y"].get()],
-    colorscale='Cividis'
-)])
+    traces = [go.Histogram2d(
+        x=data[labels["x"].get()],
+        y=data[labels["y"].get()],
+        colorscale='Cividis',
+        colorbar=dict(
+            title="Count"
+        )
+    )]
+    fig = dict(data=traces, layout=dict(
+        title = "Histogram of " + labels["y"].get() + " vs. " + labels["x"].get(),
+        yaxis = dict(title=labels["y"].get()),
+        xaxis = dict(title=labels["x"].get())
+    ))
+    pl.plot(fig)
+    return
 
 def boxPlotGraph(data,labels):
     
