@@ -100,24 +100,61 @@ def scatterGraph(data, labels):
     
     # set to color data if defined, otherwise default
     if labels["[color]"].get() == "":
-        color = '#1f77b4'
-        scale = False
+        traces = [go.Scatter(
+            x=data[labels["x"].get()],
+            y=data[labels["y"].get()], 
+            mode="markers",
+            marker=dict(
+                size = size
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["y"].get() + " vs. " + labels["x"].get(),
+            yaxis = dict(title=labels["y"].get()),
+            xaxis = dict(title=labels["x"].get())
+        ))
     elif data[labels["[color]"].get()].dtype == np.object:
-        pass
+        ## find unique labels in the column set to "color"    
+        fig = {
+            'data': [
+                {
+                    'x': data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
+                    'y': data[ data[labels["[color]"].get()]==colorLabel ][labels["y"].get()],
+                    'name': colorLabel,
+                    'mode': 'markers',
+                    'marker': {
+                        'size': size
+                    }
+                } for colorLabel in data[labels["[color]"].get()].unique()
+            ],
+            'layout': {
+                'title': labels["y"].get() + " vs. " + labels["x"].get(),
+                'xaxis': {'title': labels["x"].get()},
+                'yaxis': {'title': labels["y"].get()}
+            }
+        }
     else:
-        color = data[labels["[color]"].get()]
-        scale = True
-    
-    pl.plot([go.Scatter(
-        x=data[labels["x"].get()],
-        y=data[labels["y"].get()], 
-        mode="markers",
-        marker=dict(
-            size = size,
-            color = color,
-            showscale = scale
-        )
-    )])
+        traces = [go.Scatter(
+            x=data[labels["x"].get()],
+            y=data[labels["y"].get()], 
+            mode="markers",
+            marker=dict(
+                size = size,
+                color = data[labels["[color]"].get()],
+                showscale = True,
+                colorbar=dict(
+                    title=labels["[color]"].get()
+                )
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["y"].get() + " vs. " + labels["x"].get(),
+            yaxis = dict(title=labels["y"].get()),
+            xaxis = dict(title=labels["x"].get())
+        ))
+
+
+    pl.plot(fig)
     return
 
 def barGraph(data, labels):
@@ -170,11 +207,7 @@ def histogram2dGraph(data, labels):
     pl.plot([go.Histogram2d(
     x=data[labels["x"].get()],
     y=data[labels["y"].get()],
-    colorscale='Cividis'#,
-    #zmax=10,
-    #nbinsx=14,
-    #nbinsy=14,
-    #zauto=False,
+    colorscale='Cividis'
 )])
 
 def boxPlotGraph(data,labels):
