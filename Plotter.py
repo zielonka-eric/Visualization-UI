@@ -33,17 +33,18 @@ def getGraphs(data, labels):
         if numNumber == 0:
             graphList = [Graph.PIE]
         if numNumber == 1:
-            graphList = [Graph.BAR, Graph.PIE]
+            graphList = [Graph.BAR, Graph.BOXPLOT, Graph.PIE]
         if numNumber == 2:
             graphList = [Graph.BAR, Graph.SCATTER, Graph.SCATTERMAP]
         if numNumber == 3:
-            graphList = [Graph.SCATTER, Graph.SCATTERMAP]
+            graphList = [Graph.SCATTER, Graph.SCATTER3D, Graph.SCATTERMAP]
+        if numNumber == 4:
+            graphList = [Graph.SCATTER3D]
     if stringNumber == 2:
         if numNumber == 1:
             graphList = [Graph.BAR]
     
     return [i.value for i in graphList]
-    #return [i.value for i in list(Graph)]   #temporary
 
 def getOptions(graphChoice):
     options = []
@@ -60,7 +61,7 @@ def getOptions(graphChoice):
     elif graphChoice == Graph.HISTOGRAM2D:
         options = ["x", "y"]
     elif graphChoice == Graph.BOXPLOT:
-        options = ["y"]
+        options = ["y", "[category]"]
     elif graphChoice == Graph.PIE:
         options = ["category", "[values]"]
     elif graphChoice == Graph.SCATTERMAP:
@@ -115,24 +116,22 @@ def scatterGraph(data, labels):
         ))
     elif data[labels["[color]"].get()].dtype == np.object:
         ## find unique labels in the column set to "color"    
-        fig = {
-            'data': [
-                {
-                    'x': data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
-                    'y': data[ data[labels["[color]"].get()]==colorLabel ][labels["y"].get()],
-                    'name': colorLabel,
-                    'mode': 'markers',
-                    'marker': {
-                        'size': size
-                    }
-                } for colorLabel in data[labels["[color]"].get()].unique()
-            ],
-            'layout': {
-                'title': labels["y"].get() + " vs. " + labels["x"].get(),
-                'xaxis': {'title': labels["x"].get()},
-                'yaxis': {'title': labels["y"].get()}
-            }
-        }
+        fig = dict(
+            data=[ go.Scatter(
+                    x= data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
+                    y= data[ data[labels["[color]"].get()]==colorLabel ][labels["y"].get()],
+                    name=colorLabel,
+                    mode='markers',
+                    marker=dict(
+                        size=size
+                    )
+                 ) for colorLabel in data[labels["[color]"].get()].unique() ],
+            layout=dict(
+                title = labels["y"].get() + " vs. " + labels["x"].get(),
+                yaxis = dict(title=labels["y"].get()),
+                xaxis = dict(title=labels["x"].get())
+            )
+        )
     else:
         traces = [go.Scatter(
             x=data[labels["x"].get()],
@@ -152,7 +151,6 @@ def scatterGraph(data, labels):
             yaxis = dict(title=labels["y"].get()),
             xaxis = dict(title=labels["x"].get())
         ))
-
 
     pl.plot(fig)
     return
@@ -178,26 +176,73 @@ def scatter3DGraph(data, labels):
     
     # set to color data if defined, otherwise default
     if labels["[color]"].get() == "":
-        color = '#1f77b4'
-        scale = False
+        traces = [go.Scatter3d(
+            x=data[labels["x"].get()],
+            y=data[labels["y"].get()],
+            z=data[labels["z"].get()], 
+            mode="markers",
+            marker=dict(
+                size = size,
+                opacity=0.8
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["z"].get() + " vs. " + labels["y"].get() + " vs. " + labels["x"].get(),
+            scene = dict(
+                yaxis = dict(title=labels["y"].get()),
+                xaxis = dict(title=labels["x"].get()),
+                zaxis = dict(title=labels["z"].get())
+            )
+        ))
     elif data[labels["[color]"].get()].dtype == np.object:
-        pass
-    else:
-        color = data[labels["[color]"].get()]
-        scale = True
-    
-    pl.plot([go.Scatter3d(
-        x=data[labels["x"].get()],
-        y=data[labels["y"].get()],
-        z=data[labels["z"].get()],
-        mode='markers',
-        marker=dict(
-            size=size,
-            color=color,
-            showscale=scale,
-            opacity=0.8
+        ## find unique labels in the column set to "color"    
+        fig = dict(
+            data=[ go.Scatter3d(
+                    x=data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
+                    y=data[ data[labels["[color]"].get()]==colorLabel ][labels["y"].get()],
+                    z=data[ data[labels["[color]"].get()]==colorLabel ][labels["z"].get()],
+                    name=colorLabel,
+                    mode="markers",
+                    marker=dict(
+                        size = size,
+                        opacity=0.8
+                    )
+                ) for colorLabel in data[labels["[color]"].get()].unique() ],
+            layout=dict(
+                title = labels["z"].get() + " vs. " + labels["y"].get() + " vs. " + labels["x"].get(),
+                scene = dict(
+                    yaxis = dict(title=labels["y"].get()),
+                    xaxis = dict(title=labels["x"].get()),
+                    zaxis = dict(title=labels["z"].get())
+                )
+            )
         )
-    )])
+    else:
+        traces = [go.Scatter3d(
+            x=data[labels["x"].get()],
+            y=data[labels["y"].get()],
+            z=data[labels["z"].get()], 
+            mode="markers",
+            marker=dict(
+                size = size,
+                color = data[labels["[color]"].get()],
+                showscale = True,
+                opacity=0.8,
+                colorbar=dict(
+                    title=labels["[color]"].get()
+                )
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = labels["z"].get() + " vs. " + labels["y"].get() + " vs. " + labels["x"].get(),
+            scene = dict(
+                yaxis = dict(title=labels["y"].get()),
+                xaxis = dict(title=labels["x"].get()),
+                zaxis = dict(title=labels["z"].get())
+            )
+        ))
+
+    pl.plot(fig)
     return
 
 def histogramGraph(data, labels):
