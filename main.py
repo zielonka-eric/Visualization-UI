@@ -74,7 +74,11 @@ class NameColumnsFrame:
 
             #example data
             for j in range(0, 8):
-                ttk.Label(frame, text=self.data.loc[j, column]).grid(column=i, row=j+1, padx=10, pady=2)
+                try:
+                    ttk.Label(frame, text=self.data.loc[j, column]).grid(column=i, row=j+1, padx=10, pady=2)
+                except KeyError:
+                    #file is shorter than 8 lines long
+                    break
         return
 
     def process(self, **kwargs):
