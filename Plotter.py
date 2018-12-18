@@ -320,10 +320,27 @@ def histogram2dGraph(data, labels):
     return
 
 def boxPlotGraph(data,labels):
-    
-    pl.plot([go.Box(
-        y=data[labels["y"].get()]
-    )])
+    if labels["[category]"].get() != "":
+        traces = [ go.Box(
+            y=data[data[labels["[category]"].get()]==name][labels["y"].get()],
+            name=name
+        ) for name in data[labels["[category]"].get()].unique() ]
+        fig = dict(data=traces, layout=dict(
+            title = "Boxplot of " + labels["y"].get(),
+            yaxis = dict(title=labels["y"].get())
+        ))
+    else:
+        traces = [go.Box(
+            y=data[labels["y"].get()],
+            name=" "
+        )]
+        fig = dict(data=traces, layout=dict(
+            title = "Boxplot of " + labels["y"].get(),
+            yaxis = dict(title=labels["y"].get())
+        ))
+
+    pl.plot(fig)
+    return
 
 def pieGraph(data,labels):
     #doesn't quite work yet
