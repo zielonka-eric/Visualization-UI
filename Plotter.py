@@ -343,11 +343,24 @@ def boxPlotGraph(data,labels):
     return
 
 def pieGraph(data,labels):
-    #doesn't quite work yet
-    pl.plot([go.Pie(
-        labels=data[labels["category"].get()],
+    if labels["[values]"].get() != "":
+        categories=data[labels["category"].get()]
         values=data[labels["[values]"].get()]
-    )])
+    else:
+        values = data[labels["category"].get()].value_counts()
+        categories = values.keys()
+
+    fig = dict(
+        data = [go.Pie(
+            labels=categories,
+            values=values
+        )],
+        layout = dict(
+            title = "Pie chart of " + labels["category"].get()
+        ))
+
+    pl.plot(fig)
+    return
     
 def scatterMapGraph(data,labels):
     pl.plot([go.Scattergeo(
