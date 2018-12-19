@@ -115,7 +115,7 @@ def scatterGraph(data, labels):
             xaxis = dict(title=labels["x"].get())
         ))
     elif data[labels["[color]"].get()].dtype == np.object:
-        ## find unique labels in the column set to "color"    
+        ## find unique labels in the column set to "color"
         fig = dict(
             data=[ go.Scatter(
                     x= data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
@@ -135,7 +135,7 @@ def scatterGraph(data, labels):
     else:
         traces = [go.Scatter(
             x=data[labels["x"].get()],
-            y=data[labels["y"].get()], 
+            y=data[labels["y"].get()],
             mode="markers",
             marker=dict(
                 size = size,
@@ -167,7 +167,7 @@ def barGraph(data, labels):
             xaxis = dict(title=labels["category"].get())
         ))
     elif data[labels["[color]"].get()].dtype == np.object:
-        ## find unique labels in the column set to "color"    
+        ## find unique labels in the column set to "color"
         fig = dict(
             data=[ go.Bar(
                 x=data[labels["category"].get()],
@@ -226,7 +226,7 @@ def scatter3DGraph(data, labels):
         traces = [go.Scatter3d(
             x=data[labels["x"].get()],
             y=data[labels["y"].get()],
-            z=data[labels["z"].get()], 
+            z=data[labels["z"].get()],
             mode="markers",
             marker=dict(
                 size = size,
@@ -242,7 +242,7 @@ def scatter3DGraph(data, labels):
             )
         ))
     elif data[labels["[color]"].get()].dtype == np.object:
-        ## find unique labels in the column set to "color"    
+        ## find unique labels in the column set to "color"
         fig = dict(
             data=[ go.Scatter3d(
                     x=data[ data[labels["[color]"].get()]==colorLabel ][labels["x"].get()],
