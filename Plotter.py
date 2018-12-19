@@ -363,59 +363,95 @@ def pieGraph(data,labels):
     return
     
 def scatterMapGraph(data,labels):
-    pl.plot([go.Scattergeo(
-        locationmode = 'USA-states',
-        lon=data[labels["longitude"].get()],
-        lat=data[labels["latitude"].get()],
-        #text=data[labels["text"].get()],
-        mode = 'markers',
-        marker = dict(
-            size = 8,
-            opacity = 0.8,
-            reversescale = True,
-            autocolorscale = True,
-            symbol = 'square',
-            line = dict(
-                width=1,
-                color='rgba(102, 102, 102)'
-            ))
-            
-        )])
+    # set to color data if defined, otherwise adjusted size
+    if labels["[size]"].get() == "":
+        size = 10
+    else:
+        sizeData = data[labels["[size]"].get()]
+        size = np.interp(sizeData, (sizeData.min(), sizeData.max()), (8, 26))
     
-    
-    
-    
-#    data = [ dict(
-#        type = 'scattergeo',
-#        locationmode = 'USA-states',
-#        lon=data[labels["longitude"].get()],
-#        lat=data[labels["latitude"].get()],
-#        #text=data[labels["text"].get()],
-#        mode = 'markers',
-#        marker = dict(
-#            size = 8,
-#            opacity = 0.8,
-#            reversescale = True,
-#            autocolorscale = True,
-#            symbol = 'square',
-#            line = dict(
-#                width=1,
-#                color='rgba(102, 102, 102)'
-#            ),
-#            
-#        ))]
-#
-#    layout = dict(
-#        title = 'Airpot',
-#        geo = dict(
-#            scope='usa'
-#        ),
-#    )
-#
-#       
-#    pl.plot([go.Figure(
-#        data = data,
-#        layout= layout)])
-       
-    
-    
+    geo = dict(
+        scope="world",
+        resolution=50,
+        showland = True,
+        landcolor = "rgb(231, 234, 232)",
+        showsubunits = True,
+        subunitcolor = "rgb(255, 255, 255)",
+        showcountries = True,
+        countrycolor = "rgb(255, 255, 255)",
+        showlakes = True,
+        lakecolor = "rgb(255, 255, 255)",
+        showcoastlines=True,
+        coastlinecolor="rgb(255, 255, 255)",
+        projection=dict(
+            type="equirectangular"
+        )
+    )
+
+    # set to color data if defined, otherwise default
+    if labels["[color]"].get() == "":
+        traces = [go.Scattergeo(
+            lon=data[labels["longitude"].get()],
+            lat=data[labels["latitude"].get()],
+            mode = 'markers',
+            marker = dict(
+                size = size,
+                opacity = 0.8,
+                line = dict(
+                    width=1,
+                    color='rgba(50, 50, 50)'
+                )
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            #title = "",
+            geo=geo
+        ))
+    elif data[labels["[color]"].get()].dtype == np.object:
+        ## find unique labels in the column set to "color"
+        fig = dict(
+            data=[ go.Scattergeo(
+                    lon=data[ data[labels["[color]"].get()]==colorLabel ][labels["longitude"].get()],
+                    lat=data[ data[labels["[color]"].get()]==colorLabel ][labels["latitude"].get()],
+                    name=colorLabel,
+                    mode = 'markers',
+                    marker = dict(
+                        size = size,
+                        opacity = 0.8,
+                        line = dict(
+                            width=1.5,
+                            color='rgba(50, 50, 50)'
+                        )
+                    )
+                ) for colorLabel in data[labels["[color]"].get()].unique() ],
+            layout=dict(
+                #title = "",
+                geo=geo
+            )
+        )
+    else:
+        traces = [go.Scattergeo(
+            lon=data[labels["longitude"].get()],
+            lat=data[labels["latitude"].get()],
+            mode = 'markers',
+            marker = dict(
+                size = size,
+                opacity = 0.8,
+                color = data[labels["[color]"].get()],
+                showscale = True,
+                colorbar=dict(
+                    title=labels["[color]"].get()
+                ),
+                line = dict(
+                    width=1.5,
+                    color='rgba(50, 50, 50)'
+                )
+            )
+        )]
+        fig = dict(data=traces, layout=dict(
+            #title = "",
+            geo=geo
+        ))
+
+    pl.plot(fig)
+    return
